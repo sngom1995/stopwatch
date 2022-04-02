@@ -11,7 +11,12 @@ class StopWatchApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(primaryColor: Colors.grey),
-      home: LoginScreen(),
+      routes: {
+        '/': (context) => LoginScreen(),
+        LoginScreen.loginRoute: (context) => LoginScreen(),
+        StopWatch.stopwatchRoute: (context) => StopWatch(),
+      },
+      initialRoute: '/',
     );
   }
 }
