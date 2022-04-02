@@ -72,18 +72,39 @@ class _StopWatchState extends State<StopWatch> {
     });
   }
 
-  void _stopTimer() {
+  void _stopTimer(BuildContext context) {
     timer.cancel();
     setState(() {
       isTicking = false;
     });
-    final totalRuntime =
+    /*final totalRuntime =
         laps.fold(milliseconds, (total, lap) => (total as int) + lap);
     final alert = PlatformAlert(
       title: 'Run Completed!',
       message: 'Total Run Time is ${_secondsText(totalRuntime)}.',
     );
-    alert.show(context);
+    alert.show(context);*/
+    final controller =
+        showBottomSheet(context: context, builder: _buildRunCompleteSheet);
+    Future.delayed(Duration(seconds: 5)).then((_) => controller.close());
+  }
+
+  Widget _buildRunCompleteSheet(BuildContext context) {
+    final totalRuntime =
+        laps.fold(milliseconds, (total, lap) => (total as int) + lap);
+    final textTheme = Theme.of(context).textTheme;
+
+    return SafeArea(
+        child: Container(
+      color: Theme.of(context).cardColor,
+      width: double.infinity,
+      child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 30.0),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text('Run Finished!', style: textTheme.headline6),
+            Text('Total Run Time is ${_secondsText(totalRuntime)}.')
+          ])),
+    ));
   }
 
   String _secondsText(int milliseconds) {
@@ -107,7 +128,7 @@ class _StopWatchState extends State<StopWatch> {
           itemCount: laps.length,
           itemBuilder: (context, index) {
             return ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 80),
+              contentPadding: EdgeInsets.symmetric(horizontal: 50),
               title: Text('Lap ${index + 1}'),
               trailing: Text(_secondsText(laps[index])),
             );
@@ -166,12 +187,14 @@ class _StopWatchState extends State<StopWatch> {
           onPressed: isTicking ? _lap : null,
         ),
         SizedBox(width: 20),
-        ElevatedButton(
-          onPressed: isTicking ? _stopTimer : null,
-          child: Text('Stop'),
-          style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.red),
-              foregroundColor: MaterialStateProperty.all(Colors.white)),
+        Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => isTicking ? _stopTimer(context) : null,
+            child: Text('Stop'),
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.red),
+                foregroundColor: MaterialStateProperty.all(Colors.white)),
+          ),
         ),
       ],
     );
